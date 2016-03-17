@@ -84,21 +84,45 @@ void Player::Set1_2(int Input) { OneOrTwo = Input; }
 
 void Player::SetMove(int MovePoint, Player PlayerTurn)
 {
+	
 	//All movepoint has to be deducted by 1 to keep account of 0
-	//check if integer is between 1-7
-
-	int RowToInsert = MAXROW-1;
+	MovePoint = MovePoint - 1;	
+	int RowToInsert = MAXROW-1; //Player see 1-6, Game see 0-5, convert player input to game input
+	bool CheckToken = false; //used to keep the while loop moving
+	std::string temp;
 	do
 	{
+		
+		if (MovePoint > 5 || MovePoint < 0)//check if integer is between 0-5
+		{
+			std::cout << "Please choose another column" << std::endl; //inform player for another choice
+			RowToInsert = MAXROW - 1;
+			std::getline(std::cin, temp);
+			MovePoint = stoi(temp);
+		}
 		std::cout << "you selected: " << MovePoint << std::endl; //To check if int parameter is correct
 		std::cout << "Player's token: " << PlayerTurn.OneOrTwo << std::endl; //To check if object parameter is correct
-		Board[RowToInsert][MovePoint] = PlayerTurn.OneOrTwo;//Set Player's token into the selected column's earliest row
+		
 		std::cout << "Your move is : " << Board[RowToInsert][MovePoint] << std::endl; //check to see if array is assigned
-		//If hole is filled , go to the next row
+		if((Board[RowToInsert][MovePoint] == 0))//If hole is filled , go to the next row
+		{
+			std::cout << "Successful" << std::endl;
+			Board[RowToInsert][MovePoint] = PlayerTurn.OneOrTwo;//Set Player's token into the selected column's earliest row		
+			CheckToken = true;
+			break;
+		}
+		std::cout << "Something Detected, stacking on" << std::endl;
+		RowToInsert--;
+		std::cout << "Placing on: " << RowToInsert << " , " << MovePoint << std::endl;
 		//If all holes in the column is filled,
-		//inform player for another choice
-	} while (false);
-
+		if (RowToInsert == -1)
+		{
+			std::cout << "Please choose another column" << std::endl; //inform player for another choice
+			RowToInsert = MAXROW - 1;
+			std::getline(std::cin, temp);
+			MovePoint = stoi(temp);
+		}
+	} while (CheckToken==false);
 }
 
 void StartGame()
@@ -130,10 +154,10 @@ void PlayGame()
 		std::getline(std::cin, PlayerMove);
 		Player1.SetMove(stoi(PlayerMove),Player1);	///Player 1 Move (insert play piece)
 		PrintBoard_template(Board, Player2);			///print board
+		std::cout << "Press 1-7 to indicated which column to drop your piece" << std::endl;
 		std::getline(std::cin, PlayerMove);
 		Player2.SetMove(stoi(PlayerMove),Player2);	///Player 2 Move	
-	}
-	
+	}	
 }
 
 template <size_t rows, size_t cols> 
@@ -149,8 +173,6 @@ void PrintBoard_template(int(&array)[rows][cols], Player PlayerTurn)
 	for (size_t i = 0; i < rows; ++i) //check row
 	{
 		std::cout << i+1 << "  ";	//print row number
-		Board[0][1] = 2;
-		Board[5][6] = 1;
 		for (size_t j = 0; j < cols; ++j) //check column
 			switch (Board[i][j])
 			{
