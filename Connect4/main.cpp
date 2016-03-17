@@ -84,11 +84,12 @@ void Player::Set1_2(int Input) { OneOrTwo = Input; }
 
 void Player::SetMove(int MovePoint, Player PlayerTurn)
 {
+	//All movepoint has to be deducted by 1 to keep account of 0
 	//check if integer is between 1-7
 
-	int RowToInsert = 7;
-	/*do
-	{*/
+	int RowToInsert = MAXROW-1;
+	do
+	{
 		std::cout << "you selected: " << MovePoint << std::endl; //To check if int parameter is correct
 		std::cout << "Player's token: " << PlayerTurn.OneOrTwo << std::endl; //To check if object parameter is correct
 		Board[RowToInsert][MovePoint] = PlayerTurn.OneOrTwo;//Set Player's token into the selected column's earliest row
@@ -96,7 +97,7 @@ void Player::SetMove(int MovePoint, Player PlayerTurn)
 		//If hole is filled , go to the next row
 		//If all holes in the column is filled,
 		//inform player for another choice
-	/*} while (false);*/
+	} while (false);
 
 }
 
@@ -148,6 +149,8 @@ void PrintBoard_template(int(&array)[rows][cols], Player PlayerTurn)
 	for (size_t i = 0; i < rows; ++i) //check row
 	{
 		std::cout << i+1 << "  ";	//print row number
+		Board[0][1] = 2;
+		Board[5][6] = 1;
 		for (size_t j = 0; j < cols; ++j) //check column
 			switch (Board[i][j])
 			{
