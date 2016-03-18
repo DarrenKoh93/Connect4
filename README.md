@@ -1,2 +1,3 @@
-# Connect4
-A console version of the connect 4. Working on AI
+Author: Darren Koh
+A simple game of connect 4 on console.
+Used for practise of OOP and AI algorithm.
