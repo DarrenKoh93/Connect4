@@ -102,7 +102,7 @@ bool CheckGameWon(int X, int Y,Player PlayerTurn)
 	for (CheckVertical = X - 1; Board[CheckVertical][Y] == PlayerToken && CheckVertical >= 0; CheckVertical--, ConnectingVert++);//Check from current position to down
 	if (ConnectingVert == 4)
 	{
-		std::cout << "congratulations on winning the game vertically, " << PlayerTurn.GetName() << std::endl; //if win, send output informing which player win and stop the game
+		//std::cout << "congratulations on winning the game vertically, " << PlayerTurn.GetName() << std::endl; //if win, send output informing which player win and stop the game
 		return true;
 	}
 
@@ -111,7 +111,7 @@ bool CheckGameWon(int X, int Y,Player PlayerTurn)
 	for (CheckHorizontal = Y - 1; Board[X][CheckHorizontal] == PlayerToken && CheckHorizontal >= 0; CheckHorizontal--, ConnectingHort++);//Check from current position to left
 	if (ConnectingHort == 4)
 	{
-		std::cout << "congratulations on winning the game horizontally, " << PlayerTurn.GetName() << std::endl; //if win, send output informing which player win and stop the game
+		//std::cout << "congratulations on winning the game horizontally, " << PlayerTurn.GetName() << std::endl; //if win, send output informing which player win and stop the game
 		return true;
 	}
 	
@@ -123,7 +123,7 @@ bool CheckGameWon(int X, int Y,Player PlayerTurn)
 	for (CheckVertical = X + 1, CheckHorizontal = Y - 1; Board[CheckVertical][CheckHorizontal] == PlayerToken && CheckVertical >= 0 && CheckHorizontal >= 0; ConnectingForwardSlash++, CheckVertical--, CheckHorizontal--);//down and left
 	if (ConnectingForwardSlash == 4)
 	{
-		std::cout << "congratulations on winning the game forward slash, " << PlayerToken << std::endl; //if win, send output informing which player win and stop the game
+		//std::cout << "congratulations on winning the game forward slash, " << PlayerToken << std::endl; //if win, send output informing which player win and stop the game
 		return true;
 	}
 																																																						   
@@ -132,7 +132,7 @@ bool CheckGameWon(int X, int Y,Player PlayerTurn)
 	for (CheckVertical = X + 1, CheckHorizontal = Y - 1; Board[CheckVertical][CheckHorizontal] == PlayerToken && CheckVertical <= 5 && CheckHorizontal >= 0; ConnectingBackSlash++, CheckVertical++, CheckHorizontal--);//up and left
 	if (ConnectingBackSlash == 4)
 	{
-		std::cout << "congratulations on winning the game backslash, " << PlayerToken << std::endl; //if win, send output informing which player win and stop the game
+		//std::cout << "congratulations on winning the game backslash, " << PlayerToken << std::endl; //if win, send output informing which player win and stop the game
 		return true;
 	}
 	return false;
@@ -163,7 +163,12 @@ void Player::SetMove(int MovePoint, Player PlayerTurn)
 			//std::cout << "Successful" << std::endl;
 			Board[RowToInsert][MovePoint] = PlayerTurn.OneOrTwo;//Set Player's token into the selected column's earliest row		
 			CheckToken = true;
-			CheckGameWon(RowToInsert, MovePoint, PlayerTurn);
+			if (CheckGameWon(RowToInsert, MovePoint, PlayerTurn) == true)
+			{
+				GameWon = true;
+				PrintBoard_template(Board, PlayerTurn);
+				std::cout << "congratulations on winning the game, " << PlayerTurn.GetName() << std::endl;
+			}
 			break;
 		}
 		//std::cout << "Something Detected, stacking on" << std::endl;
@@ -204,15 +209,18 @@ void PlayGame()
 	while (GameWon==false) ///while game is not won, repeat
 	{
 		std::string PlayerMove;
+
 		PrintBoard_template(Board,Player1); ///print board
 		std::cout << "Press 1-7 to indicated which column to drop your piece" << std::endl;
 		std::getline(std::cin, PlayerMove);
 		Player1.SetMove(stoi(PlayerMove),Player1);	///Player 1 Move (insert play piece)
+		if (GameWon == true) {break; }
 		PrintBoard_template(Board, Player2);			///print board
 		std::cout << "Press 1-7 to indicated which column to drop your piece" << std::endl;
 		std::getline(std::cin, PlayerMove);
 		Player2.SetMove(stoi(PlayerMove),Player2);	///Player 2 Move	
 	}	
+	std::cout << "Game ended" << std::endl;
 }
 
 template <size_t rows, size_t cols> 
