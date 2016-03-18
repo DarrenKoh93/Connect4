@@ -17,7 +17,6 @@ class Player
 	public:
 		std::string PlayerName;
 		int OneOrTwo;
-		void Player::CreateChar();
 		
 		void Player::SetName(std::string);
 		std::string Player::GetName();

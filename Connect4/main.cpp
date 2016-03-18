@@ -34,17 +34,14 @@ void PrintBoard()	-prints the board
 enum DisplayIcon{ EMPTY= 0, PLAYER1= 1 , PLAYER2= 2 } ; //if element is 0, the hole is not filled //if element contains 1, it is filled by player 1 //if element contains 2, it is filled by player 2
 template <size_t rows, size_t cols> void PrintBoard_template(int(&array)[rows][cols], Player PlayerTurn); //create a function template to accept double array
 void PlayGame();
-
-bool CheckWin();
-bool CheckIfFilled();
-void PrintBoard();
+bool CheckGameWon(int,int,Player);
 void StartGame(); //Ask for details to create player profile
 
 //create character
 Player Player1;
 Player Player2;
 
-bool GameWon;
+bool GameWon = false;
 const int MAXROW = 6; //6 rows
 const int MAXCOLUMN = 7; //7 columns
 
@@ -82,38 +79,96 @@ std::string Player::GetName() { return PlayerName; }
 int Player::Get1_2() { return OneOrTwo; }
 void Player::Set1_2(int Input) { OneOrTwo = Input; }
 
-void Player::SetMove(int MovePoint, Player PlayerTurn)
+bool CheckGameWon(int X, int Y,Player PlayerTurn)
 {
+	///to win: 4 same tokens connected
+	std::cout << "[" << PlayerTurn.GetName() << "] turn" << std::endl;
+
+	///Player's token
+	int PlayerToken = Board[X][Y];
+
+	int CheckVertical;
+	int CheckHorizontal;
+	int ConnectingVert = 1;
+	int ConnectingHort = 1;
+	int ConnectingForwardSlash = 1;
+	int ConnectingBackSlash = 1;
+	///ways to do:get row->convert to string->check if string contains "1111" or "2222", 
+	///				or take function parameters at location they set->checkHorizontal/vertical/diagonal upwards, sideway,downwards whenever each token is placed
+	///				check if there is any value-> if there is, compare with the one to the horizontal/vertical axis if it is the same
+	///				check from current position, until it reaches the top && if it is the Player Token
+	///check for horizontal
+	for (CheckVertical = X + 1; Board[CheckVertical][Y] == PlayerToken && CheckVertical <= 5; CheckVertical++, ConnectingVert++);//check from current position to up
+	for (CheckVertical = X - 1; Board[CheckVertical][Y] == PlayerToken && CheckVertical >= 0; CheckVertical--, ConnectingVert++);//Check from current position to down
+	if (ConnectingVert == 4)
+	{
+		std::cout << "congratulations on winning the game vertically, " << PlayerTurn.GetName() << std::endl; //if win, send output informing which player win and stop the game
+		return true;
+	}
+
+	///check for vertical
+	for (CheckHorizontal = Y + 1; Board[X][CheckHorizontal] == PlayerToken && CheckHorizontal <= 6; CheckHorizontal++, ConnectingHort++);//check from current position to right
+	for (CheckHorizontal = Y - 1; Board[X][CheckHorizontal] == PlayerToken && CheckHorizontal >= 0; CheckHorizontal--, ConnectingHort++);//Check from current position to left
+	if (ConnectingHort == 4)
+	{
+		std::cout << "congratulations on winning the game horizontally, " << PlayerTurn.GetName() << std::endl; //if win, send output informing which player win and stop the game
+		return true;
+	}
 	
+	///check for diagonal
+	///there are two diagonals to look out for: ['/': bottom left to top right , top right to bottom left], ['\' : top left to bottom right, bttom right to top left]
+
+	///to get /, horizontal +1 and vertical + 1 , horizontal -1 and vertical -1
+	for (CheckVertical = X - 1, CheckHorizontal = Y + 1; Board[CheckVertical][CheckHorizontal] == PlayerToken && CheckVertical <= 5 && CheckHorizontal <= 6; ConnectingForwardSlash++, CheckVertical++, CheckHorizontal++);//up and right
+	for (CheckVertical = X + 1, CheckHorizontal = Y - 1; Board[CheckVertical][CheckHorizontal] == PlayerToken && CheckVertical >= 0 && CheckHorizontal >= 0; ConnectingForwardSlash++, CheckVertical--, CheckHorizontal--);//down and left
+	if (ConnectingForwardSlash == 4)
+	{
+		std::cout << "congratulations on winning the game forward slash, " << PlayerToken << std::endl; //if win, send output informing which player win and stop the game
+		return true;
+	}
+																																																						   
+	///to get \, horizontal +1 and vertical -1 , horizontal -1 and vertical +1																																														
+	for (CheckVertical = X - 1, CheckHorizontal = Y + 1; Board[CheckVertical][CheckHorizontal] == PlayerToken && CheckVertical >= 0 && CheckHorizontal >= 6; ConnectingBackSlash++, CheckVertical--, CheckHorizontal++);//down and right
+	for (CheckVertical = X + 1, CheckHorizontal = Y - 1; Board[CheckVertical][CheckHorizontal] == PlayerToken && CheckVertical <= 5 && CheckHorizontal >= 0; ConnectingBackSlash++, CheckVertical++, CheckHorizontal--);//up and left
+	if (ConnectingBackSlash == 4)
+	{
+		std::cout << "congratulations on winning the game backslash, " << PlayerToken << std::endl; //if win, send output informing which player win and stop the game
+		return true;
+	}
+	return false;
+}
+
+void Player::SetMove(int MovePoint, Player PlayerTurn)
+{	
 	//All movepoint has to be deducted by 1 to keep account of 0
 	MovePoint = MovePoint - 1;	
 	int RowToInsert = MAXROW-1; //Player see 1-6, Game see 0-5, convert player input to game input
 	bool CheckToken = false; //used to keep the while loop moving
 	std::string temp;
 	do
-	{
-		
-		if (MovePoint > 5 || MovePoint < 0)//check if integer is between 0-5
+	{		
+		if (MovePoint > 6 || MovePoint < 0)//check if integer is between 0-5
 		{
 			std::cout << "Please choose another column" << std::endl; //inform player for another choice
 			RowToInsert = MAXROW - 1;
 			std::getline(std::cin, temp);
 			MovePoint = stoi(temp);
 		}
-		std::cout << "you selected: " << MovePoint << std::endl; //To check if int parameter is correct
-		std::cout << "Player's token: " << PlayerTurn.OneOrTwo << std::endl; //To check if object parameter is correct
+		//std::cout << "you selected: " << MovePoint << std::endl; //To check if int parameter is correct
+		//std::cout << "Player's token: " << PlayerTurn.OneOrTwo << std::endl; //To check if object parameter is correct
 		
-		std::cout << "Your move is : " << Board[RowToInsert][MovePoint] << std::endl; //check to see if array is assigned
+		//std::cout << "Your move is : " << Board[RowToInsert][MovePoint] << std::endl; //check to see if array is assigned
 		if((Board[RowToInsert][MovePoint] == 0))//If hole is filled , go to the next row
 		{
-			std::cout << "Successful" << std::endl;
+			//std::cout << "Successful" << std::endl;
 			Board[RowToInsert][MovePoint] = PlayerTurn.OneOrTwo;//Set Player's token into the selected column's earliest row		
 			CheckToken = true;
+			CheckGameWon(RowToInsert, MovePoint, PlayerTurn);
 			break;
 		}
-		std::cout << "Something Detected, stacking on" << std::endl;
+		//std::cout << "Something Detected, stacking on" << std::endl;
 		RowToInsert--;
-		std::cout << "Placing on: " << RowToInsert << " , " << MovePoint << std::endl;
+		//std::cout << "Placing on: " << RowToInsert << " , " << MovePoint << std::endl;
 		//If all holes in the column is filled,
 		if (RowToInsert == -1)
 		{
@@ -163,7 +218,9 @@ void PlayGame()
 template <size_t rows, size_t cols> 
 void PrintBoard_template(int(&array)[rows][cols], Player PlayerTurn)
 {
+	std::cout << std::endl << std::endl << std::endl << std::endl;
 	std::cout << "[" << PlayerTurn.GetName() <<"] turn" << std::endl;
+
 	std::cout << "    ";
 	for (size_t i = 0; i < cols; ++i) //print column number
 	{
